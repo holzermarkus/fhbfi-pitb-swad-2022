@@ -1,6 +1,5 @@
 package at.ac.fhbfi.springdatademo.entity;
 
-import at.ac.fhbfi.springdatademo.entity.Course;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,17 +15,18 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Student {
+public class StudentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
+    private String email;
 
     @ManyToMany
     @JoinTable(name = "STUDENT_TO_COURSE",
             joinColumns = {@JoinColumn(name = "fk_student")},
             inverseJoinColumns = @JoinColumn(name = "fk_course"))
-    private final Set<Course> courses = new HashSet<>();
+    private final Set<CourseEntity> courses = new HashSet<>();
 
 }
