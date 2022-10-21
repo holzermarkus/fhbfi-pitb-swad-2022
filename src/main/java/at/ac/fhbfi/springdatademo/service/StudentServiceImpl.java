@@ -14,13 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional
 public class StudentServiceImpl implements StudentService {
+
 
     @Autowired
     private StudentRepository studentRepository;
     @Autowired
     private CourseRepository courseRepository;
+
+
 
     @Override
     public void saveNewStudent(StudentDto student) {
@@ -28,33 +30,45 @@ public class StudentServiceImpl implements StudentService {
                 .name(student.getName())
                 .email(student.getEmail())
                 .build();
+
         studentRepository.save(studentEntity);
     }
 
     @Override
-    public void addCourseToStudent(StudentDto student, CourseDto course) {
-        StudentEntity studentEntity = studentRepository.findById(student.getId()).orElse(null);
-        CourseEntity courseEntity = courseRepository.findById(course.getId()).orElse(null);
-        studentEntity.getCourses().add(courseEntity);
-    }
-
-    @Override
     public List<StudentDto> getStudentList() {
-        List<StudentDto> students = new ArrayList<>();
+        List<StudentDto> studentDtos = new ArrayList<>();
         studentRepository.findAll().forEach(studentEntity -> {
+            List<CourseDto> courseDtos = new ArrayList<>();
+            studentEntity.getCourses().forEach(courseEntity -> {
+                CourseDto courseDto = CourseDto.builder()
+                        .title(courseEntity.getTitle())
+                        .id(courseEntity.getId())
+                        .build();
+                courseDtos.add(courseDto);
+            });
+
             StudentDto studentDto = StudentDto.builder()
                     .name(studentEntity.getName())
                     .email(studentEntity.getEmail())
                     .id(studentEntity.getId())
                     .build();
-            studentEntity.getCourses().forEach(courseEntity -> {
-                studentDto.getCourses().add(CourseDto.builder()
-                        .id(courseEntity.getId())
-                        .title(courseEntity.getTitle())
-                        .build());
-            });
-            students.add(studentDto);
+            studentDto.getCourses().addAll(courseDtos);
+            studentDtos.add(studentDto);
         });
-        return students;
+        return studentDtos;
+    }
+
+    @Override
+    @Transactional
+    public void addCourseToStudent(StudentDto student, CourseDto course) {
+        StudentEntity studentEntity = studentRepository.findById(student.getId()).orElse(null);
+        CourseEntity courseEntity = courseRepository.findById(course.getId()).orElse(null);
+
+        if (studentEntity == null || courseEntity == null) {
+            throw new IllegalArgumentException("student or course not found.");
+        }
+
+        studentEntity.getCourses().add(courseEntity);
+
     }
 }

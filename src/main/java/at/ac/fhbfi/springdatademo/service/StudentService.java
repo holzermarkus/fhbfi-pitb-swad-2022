@@ -8,7 +8,7 @@ import java.util.List;
 public interface StudentService {
 
     void saveNewStudent(StudentDto student);
-    void addCourseToStudent(StudentDto student, CourseDto course);
     List<StudentDto> getStudentList();
+    void addCourseToStudent(StudentDto student, CourseDto course);
 
 }
