@@ -41,6 +41,18 @@ public class StudentServiceTest {
     }
 
     @Test
+    void testGetStudentByEMail() {
+        StudentDto annaMusterfrau = StudentDto.builder()
+                .email("anna.musterfrau@uni.at")
+                .name("Anna Musterfrau")
+                .build();
+        studentService.saveNewStudent(annaMusterfrau);
+        StudentDto studentDto = studentService.getStudentByEMail("anna.musterfrau@uni.at");
+        Assertions.assertNotNull(studentDto);
+        Assertions.assertEquals("Anna Musterfrau", studentDto.getName());
+    }
+
+    @Test
     void testGetStudentList() {
         List<StudentDto> students = studentService.getStudentList();
         Assertions.assertNotNull(students);

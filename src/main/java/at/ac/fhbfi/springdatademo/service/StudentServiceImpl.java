@@ -6,6 +6,7 @@ import at.ac.fhbfi.springdatademo.entity.CourseEntity;
 import at.ac.fhbfi.springdatademo.entity.StudentEntity;
 import at.ac.fhbfi.springdatademo.repository.CourseRepository;
 import at.ac.fhbfi.springdatademo.repository.StudentRepository;
+import at.ac.fhbfi.springdatademo.service.mapper.StudentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,41 +22,25 @@ public class StudentServiceImpl implements StudentService {
     private StudentRepository studentRepository;
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private StudentMapper studentMapper;
 
 
 
     @Override
     public void saveNewStudent(StudentDto student) {
-        StudentEntity studentEntity = StudentEntity.builder()
-                .name(student.getName())
-                .email(student.getEmail())
-                .build();
-
-        studentRepository.save(studentEntity);
+        studentRepository.save(studentMapper.mapToEntity(student));
     }
 
     @Override
-    public List<StudentDto> getStudentList() {
-        List<StudentDto> studentDtos = new ArrayList<>();
-        studentRepository.findAll().forEach(studentEntity -> {
-            List<CourseDto> courseDtos = new ArrayList<>();
-            studentEntity.getCourses().forEach(courseEntity -> {
-                CourseDto courseDto = CourseDto.builder()
-                        .title(courseEntity.getTitle())
-                        .id(courseEntity.getId())
-                        .build();
-                courseDtos.add(courseDto);
-            });
+    public StudentDto getStudentByEMail(String email) {
+        return studentMapper.mapToDto(studentRepository.findByEmail(email));
+    }
 
-            StudentDto studentDto = StudentDto.builder()
-                    .name(studentEntity.getName())
-                    .email(studentEntity.getEmail())
-                    .id(studentEntity.getId())
-                    .build();
-            studentDto.getCourses().addAll(courseDtos);
-            studentDtos.add(studentDto);
-        });
-        return studentDtos;
+
+    @Override
+    public List<StudentDto> getStudentList() {
+        return studentMapper.mapToDto(studentRepository.findAll());
     }
 
     @Override
